@@ -11,6 +11,10 @@ tt = None
 try_count = 0
 
 
+def str_unicode_html(content):
+    return json.dumps(content.replace('\n', '<br>')).replace('"', '')
+
+
 def get_content():
     res = get('https://api.apiopen.top/getJoke', {
         'type': 'text',
@@ -20,10 +24,13 @@ def get_content():
     if res is not None and res.get('code') == 200:
         content_list = res.get('result')
         for index, item in enumerate(content_list):
-            html += '<b>{}</b><p>{}</p><p></p><br>'.format(
+            html += '<b>{}</b><p>{}</p>'.format(
                 index + 1,
-                json.dumps(item.get('text').replace('\n', '<br>')).replace('"', '')
+                str_unicode_html(item.get('text'))
             )
+            if item.get('top_comments_content') is not None:
+                html += '<p>精彩评论：{}</p>'.format(str_unicode_html(item.get('top_comments_content')))
+            html += '<p></p><br>'
         return html
     else:
         return None

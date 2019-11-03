@@ -53,7 +53,6 @@ def task():
 if __name__ == "__main__":
     tt = Toutiao('https://mp.toutiao.com')
     tt.set_cookie()
-    task()
 
     scheduler = BlockingScheduler()
     scheduler.add_job(task, 'cron', hour='8', minute='30')

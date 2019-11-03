@@ -1,31 +1,67 @@
+import json
+import logging
+
+import config
 from utils.request import get
 from utils.toutiao import Toutiao
+from apscheduler.schedulers.blocking import BlockingScheduler
+from utils.mail import send_mail
+
+tt = None
+try_count = 0
 
 
 def get_content():
     res = get('https://api.apiopen.top/getJoke', {
         'type': 'text',
-        'page': 1,
         'count': 20
     })
     html = ''
     if res is not None and res.get('code') == 200:
         content_list = res.get('result')
-
-        title = content_list[0].get('text')[:30]
-
-        for i in content_list:
-            html += '<p>{}</p><br><br>\n\n'.format(i.get('text').replace('\n', '<br>'))
-
-        return title, html
+        for index, item in enumerate(content_list):
+            html += '<b>{}</b><p>{}</p><p></p><br>'.format(
+                index + 1,
+                json.dumps(item.get('text').replace('\n', '<br>')).replace('"', '')
+            )
+        return html
     else:
         return None
 
 
+def task():
+    global tt, try_count
+    if tt is not None:
+        try:
+            html = get_content()
+            tt.write_article(html)
+            try_count = 0
+            print('发送成功')
+        except Exception as e:
+            try_count += 1
+            if try_count < 5:
+                task()
+            else:
+                logging.error(e)
+                try_count = 0
+                send_mail(config.Mail_user, '发送文章失败', '发送文章失败')
+    else:
+        # 浏览器实例不存在
+        send_mail(config.Mail_user, '浏览器实例不存在', '浏览器实例不存在，需要重启服务')
+
+
 if __name__ == "__main__":
-    # res = get_content()
-    # print(res)
-    tt = Toutiao('https://sso.toutiao.com/login/?service=https://mp.toutiao.com/sso_confirm/')
-    tt.click_by_xpath('//*[@id="login-type-account"]')
-    tt.login('1323123123', '123456')
-    # tt.close()
+    tt = Toutiao('https://mp.toutiao.com')
+    tt.set_cookie()
+    task()
+
+    scheduler = BlockingScheduler()
+    scheduler.add_job(task, 'cron', hour='8', minute='30')
+
+    try:
+        scheduler.start()
+    except Exception as e:
+        print('*' * 100)
+        print('toutiao was stop')
+        print('*' * 100)
+        send_mail(config.Mail_user, '服务已停止', '服务已停止')

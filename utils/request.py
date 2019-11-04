@@ -9,10 +9,11 @@ headers = {
 }
 
 
-def get(url, params):
+def get(url, params=None, format=True):
     try:
-        r = requests.get(url, params=params, headers=headers)
-        res = json.loads(r.text)
+        res = requests.get(url, params=params, headers=headers)
+        if format:
+            res = json.loads(res.text)
         return res
     except Exception as e:
         logging.error(e)

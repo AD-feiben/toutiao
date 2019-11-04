@@ -114,6 +114,7 @@ class Toutiao(Browser):
             self.driver.execute_script('window.scrollTo(0, document.body.scrollHeight)')
             # 选择无图
             self.click_by_xpath('//*[@id="graphic"]/div/div[2]/div/div[2]/div[1]/div/div[2]/div/div/label[3]/div')
+            time.sleep(10)
             # 发表
             self.click_by_xpath('//*[@id="publish"]')
 

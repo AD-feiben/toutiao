@@ -4,7 +4,7 @@ import logging
 import config
 from utils.request import get
 from utils.toutiao import Toutiao
-from apscheduler.schedulers.blocking import BlockingScheduler
+# from apscheduler.schedulers.blocking import BlockingScheduler
 from utils.mail import send_mail
 
 tt = None
@@ -17,20 +17,26 @@ def str_unicode_html(content):
 
 def get_content():
     res = get('https://api.apiopen.top/getJoke', {
-        'type': 'text',
-        'count': 20
+        'type': 'gif',
+        'count': 10
     })
     html = ''
     if res is not None and res.get('code') == 200:
         content_list = res.get('result')
         for index, item in enumerate(content_list):
-            html += '<b>{}</b><p>{}</p>'.format(
-                index + 1,
-                str_unicode_html(item.get('text'))
-            )
+            # html += '<b>{}</b><p>{}</p>'.format(
+            #     index + 1,
+            #     str_unicode_html(item.get('text'))
+            # )
+            src = item.get('images')
+            if get(src, format=False) is None:
+                continue
+
+            html += '<p><strong>{}</strong></p>'.format(str_unicode_html(item.get('text')))
             if item.get('top_comments_content') is not None:
-                html += '<p>精彩评论：{}</p>'.format(str_unicode_html(item.get('top_comments_content')))
-            html += '<p></p><br>'
+                html += '<p>神评论：{}</p>'.format(str_unicode_html(item.get('top_comments_content')))
+            html += '<p><img src={}></p><p></p><p></p><br>'.format(src)
+
         return html
     else:
         return None
@@ -42,6 +48,7 @@ def task():
         try:
             html = get_content()
             tt.write_article(html)
+            tt.close()
             try_count = 0
             print('发送成功')
         except Exception as e:
@@ -61,13 +68,15 @@ if __name__ == "__main__":
     tt = Toutiao('https://mp.toutiao.com')
     tt.set_cookie()
 
-    scheduler = BlockingScheduler()
-    scheduler.add_job(task, 'cron', hour='8', minute='30')
+    task()
 
-    try:
-        scheduler.start()
-    except Exception as e:
-        print('*' * 100)
-        print('toutiao was stop')
-        print('*' * 100)
-        send_mail(config.Mail_user, '服务已停止', '服务已停止')
+    # scheduler = BlockingScheduler()
+    # scheduler.add_job(task, 'cron', hour='8', minute='30')
+    #
+    # try:
+    #     scheduler.start()
+    # except Exception as e:
+    #     print('*' * 100)
+    #     print('toutiao was stop')
+    #     print('*' * 100)
+    #     send_mail(config.Mail_user, '服务已停止', '服务已停止')

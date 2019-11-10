@@ -7,6 +7,8 @@ import config
 
 
 def send_mail(email, mail_from, msg, msg_type='plain'):
+    if config.Mail_user is None or config.Mail_user == '':
+        return
     receivers = [email]
     message = MIMEText(msg, msg_type, 'utf-8')
     message['From'] = Header('【Toutiao】' + mail_from, 'utf-8')

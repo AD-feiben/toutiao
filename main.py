@@ -18,7 +18,7 @@ def str_unicode_html(content):
 def get_content():
     res = get('https://api.apiopen.top/getJoke', {
         'type': 'gif',
-        'count': 10
+        'count': 20
     })
     html = ''
     if res is not None and res.get('code') == 200:
@@ -29,13 +29,13 @@ def get_content():
             #     str_unicode_html(item.get('text'))
             # )
             src = item.get('images')
-            if get(src, format=False) is None:
+            if get(src, format=False).status_code != 200:
                 continue
-
+            print(index)
             html += '<p><strong>{}</strong></p>'.format(str_unicode_html(item.get('text')))
             if item.get('top_comments_content') is not None:
                 html += '<p>神评论：{}</p>'.format(str_unicode_html(item.get('top_comments_content')))
-            html += '<p><img src={}></p><p></p><p></p><br>'.format(src)
+            html += '<p><img src={}></p><p> </p><p> </p><br><br>'.format(src)
 
         return html
     else:
@@ -48,7 +48,7 @@ def task():
         try:
             html = get_content()
             tt.write_article(html)
-            tt.close()
+            # tt.close()
             try_count = 0
             print('发送成功')
         except Exception as e:
@@ -71,7 +71,7 @@ if __name__ == "__main__":
     task()
 
     # scheduler = BlockingScheduler()
-    # scheduler.add_job(task, 'cron', hour='8', minute='30')
+    # scheduler.add_job(task, 'cron', hour='*/1')
     #
     # try:
     #     scheduler.start()

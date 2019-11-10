@@ -107,7 +107,7 @@ class Toutiao(Browser):
         if 'https://mp.toutiao.com/auth/page/login/' in self.driver.current_url:
             send_mail(config.Mail_user, '需要重新登录', '需要更新 cookie')
         else:
-            self.send_keys_by_xpath('//*[@id="graphic"]/div/div[2]/div/div[1]/div[3]/div/div/div/textarea', '每日一笑！')
+            self.send_keys_by_xpath('//*[@id="graphic"]/div/div[2]/div/div[1]/div[3]/div/div/div/textarea', '搞笑动图GIF')
             self.wait_visible('//*[@id="graphic"]/div/div[2]/div/div[1]/div[4]/div/div')
             js = 'document.querySelector(".ProseMirror").innerHTML="{}"'.format(content)
             self.driver.execute_script(js)

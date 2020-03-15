@@ -37,6 +37,9 @@ def get_content():
                 html += '<p>神评论：{}</p>'.format(str_unicode_html(item.get('top_comments_content')))
             html += '<p><img src={}></p><p> </p><p> </p><br><br>'.format(src)
 
+        if html != '':
+            html += '<blockquote><p>图片来自网络，侵删</p></blockquote>'
+
         return html
     else:
         return None

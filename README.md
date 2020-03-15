@@ -2,6 +2,8 @@
 
 toutiao 是一个自动获取搞笑动图并发布头条文章的项目
 
+[![license](https://img.shields.io/github/license/ad-feiben/toutiao.svg)]()
+
 ## 使用
 
 1. 创建 Python3 虚拟环境
